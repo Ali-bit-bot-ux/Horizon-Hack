@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ловец мудов - fx-82</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        // Обновленная палитра - более свежая
+                        primary: '#4E9F86', // Более насыщенный тиловый
+                        primaryDark: '#3A7D69',
+                        accent: '#FF9F43', // Яркий оранжевый для энергии
+                        accentSoft: '#FFE0B2',
+                        bgGradientStart: '#E0F7FA', // Светло-голубой
+                        bgGradientEnd: '#F3E5F5',   // Светло-фиолетовый
+                        textDark: '#263238',
+                        textMuted: '#607D8B',
+                    },
+                    animation: {
+                        fadeIn: 'fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        float: 'float 6s ease-in-out infinite',
+                        pulseSoft: 'pulseSoft 3s ease-in-out infinite',
+                        blob: "blob 15s infinite",
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(20px) scale(0.95)' }, '100%': { opacity: '1', transform: 'translateY(0) scale(1)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-15px)' } },
+                        pulseSoft: { '0%, 100%': { transform: 'scale(1)', opacity: '0.5' }, '50%': { transform: 'scale(1.1)', opacity: '0.2' } },
+                        blob: {
+                            "0%": { transform: "translate(0px, 0px) scale(1)" },
+                            "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                            "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                            "100%": { transform: "translate(0px, 0px) scale(1)" }
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+                        'neon': '0 0 20px rgba(78, 159, 134, 0.6)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4E9F86; border-radius: 10px; }
+        /* Живой фон */
+        body { 
+            background: linear-gradient(135deg, #E0F7FA 0%, #E8F5E9 50%, #F3E5F5 100%);
+            background-attachment: fixed;
+            font-family: 'Nunito', sans-serif; color: #263238; 
+        }
+        /* Глассморфизм карточки */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .glass-panel {
+             background: rgba(255, 255, 255, 0.4);
+             backdrop-filter: blur(8px);
+             border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="antialiased min-h-screen flex flex-col overflow-x-hidden relative">
+
+    <div class="fixed top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-96 h-96 bg-primary/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob z-0 pointer-events-none"></div>
+    <div class="fixed top-1/3 right-0 translate-x-1/3 -translate-y-1/3 w-96 h-96 bg-accent/30 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000 z-0 pointer-events-none"></div>
+    <div class="fixed bottom-0 left-1/4 -translate-x-1/3 translate-y-1/3 w-96 h-96 bg-purple-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000 z-0 pointer-events-none"></div>
+
+
+    <div id="auth-container" class="min-h-screen flex items-center justify-center p-6 relative z-10">
+        <form onsubmit="handleAuth(event)" class="glass-card w-full max-w-md p-10 flex flex-col items-center animate-fadeIn transition-all hover:shadow-glass">
+            <div class="w-32 h-32 mb-6 flex items-center justify-center p-2 glass-panel rounded-full relative">
+                 <div class="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
+                <img src="Horizon.png" alt="Logo" class="w-full h-full object-contain relative z-10 drop-shadow-lg">
+            </div>
+            <h1 class="text-4xl font-black text-textDark mb-2 text-center tracking-tight">Добро пожаловать</h1>
+            <p class="text-textMuted mb-8 text-center font-semibold">Твой ментальный спутник ждет</p>
+            
+            <div class="w-full space-y-5">
+                <div class="relative">
+                     <input type="email" id="auth-email" placeholder="Email" required class="w-full pl-5 pr-4 py-4 bg-white/50 border border-white/60 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all font-bold text-textDark placeholder:text-textMuted/70 backdrop-blur-sm shadow-sm">
+                </div>
+                <div class="relative">
+                    <input type="password" id="auth-password" placeholder="Пароль" required class="w-full pl-5 pr-4 py-4 bg-white/50 border border-white/60 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all font-bold text-textDark placeholder:text-textMuted/70 backdrop-blur-sm shadow-sm">
+                </div>
+                
+                <button type="submit" id="auth-btn" class="w-full bg-gradient-to-r from-primary to-primaryDark hover:from-primaryDark hover:to-primary text-white font-black text-lg py-4 rounded-2xl transition-all shadow-lg hover:shadow-neon active:scale-95 tracking-wide">
+                    Начать путешествие
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="main-container" class="hidden min-h-screen flex flex-col p-4 md:p-6 w-full max-w-5xl mx-auto relative z-10">
+        <header class="flex justify-between items-center mb-6 glass-panel px-6 py-4 rounded-3xl animate-fadeIn z-20 relative">
+    
+    <div class="flex items-center space-x-3">
+        <img src="Horizon.png" alt="fx-82" class="w-12 h-12 object-contain drop-shadow">
+        <div>
+            <span class="block font-black text-2xl text-textDark tracking-tight leading-none">Ловец Мудов</span>
+            <span class="block text-xs font-extrabold text-primary tracking-widest uppercase mt-1">Team fx-82</span>
+        </div>
+    </div>
+
+    <div class="flex items-center space-x-3">
+        
+        <button id="audio-toggle-btn" onclick="toggleAudio()" class="glass-panel p-3 rounded-full text-textMuted hover:text-primary hover:bg-white transition-all shadow-sm">
+            <svg id="audio-icon-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM17.78 9.22a.75.75 0 10-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 001.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 101.06-1.06L20.56 12l1.72-1.72a.75.75 0 00-1.06-1.06l-1.72 1.72-1.72-1.72z" /></svg>
+            <svg id="audio-icon-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 hidden"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z" /><path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z" /></svg>
+        </button>
+
+        <button onclick="switchScreen('stats-container')" class="glass-panel px-4 py-2 rounded-xl font-bold text-textMuted hover:text-primary hover:bg-white transition-all flex items-center space-x-2">
+            <span>Статистика</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+              <path fill-rule="evenodd" d="M2.25 13.5a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V10.5a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3zm0-3.75a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V6.75a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3zm0-3.75a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V3a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3z" clip-rule="evenodd" />
+            </svg>
+        </button>
+        
+    </div>
+</header>
+
+        <main class="flex-grow flex flex-col items-center justify-start text-center animate-fadeIn relative px-4 py-4">
+            
+            <div class="flex flex-col items-center mb-2 w-full max-w-md animate-fadeIn">
+                <div class="flex justify-between w-full px-4 mb-2">
+                     <div class="glass-panel px-4 py-1.5 rounded-full flex items-center space-x-2">
+                        <span class="text-[11px] font-black text-primary uppercase tracking-widest">Уровень</span>
+                        <span id="capi-level" class="text-2xl font-black text-textDark bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500">1</span>
+                    </div>
+                     <span id="xp-percent" class="text-sm font-black text-textMuted glass-panel px-3 py-1 rounded-full">0%</span>
+                </div>
+               
+                <div class="w-full h-6 bg-white/40 backdrop-blur-md rounded-full p-1 shadow-inner border border-white/40">
+                    <div id="capi-xp-bar" class="h-full rounded-full bg-gradient-to-r from-yellow-400 via-accent to-red-400 transition-all duration-1000 ease-out relative overflow-hidden shadow-sm" style="width: 0%">
+                        <div class="absolute top-0 left-0 w-full h-full bg-white opacity-20 animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative w-72 h-72 flex items-center justify-center mb-6 animate-float z-20">
+                <div id="capi-glow" class="absolute inset-0 bg-primary/30 rounded-full blur-[50px] transition-colors duration-1000 scale-110 animate-pulseSoft"></div>
+                <div class="relative w-64 h-64 glass-card rounded-full border-4 border-white/70 shadow-2xl overflow-hidden p-6 group">
+                    <img id="capi-img" src="capybara (1).png" class="w-full h-full object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-110">
+                </div>
+            </div>
+
+            <div id="task-card" class="hidden w-full max-w-md mx-auto mb-8 p-1 bg-gradient-to-br from-accent to-yellow-300 rounded-[2rem] shadow-lg shadow-accent/30 animate-fadeInUp z-30">
+                 <div class="bg-white/90 backdrop-blur p-5 rounded-[1.8rem] relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-accent/20 rounded-full blur-2xl animate-pulse"></div>
+                    <div class="flex items-start space-x-4 relative z-10 text-left">
+                        <span class="text-4xl filter drop-shadow">🧘</span>
+                        <div class="flex-1">
+                            <p class="text-xs font-black text-accent uppercase tracking-widest mb-1">Срочный квест!</p>
+                            <p id="task-text" class="text-sm font-bold text-textDark leading-snug mb-3">Загрузка задания...</p>
+                            <button id="task-action-btn" onclick="completeTask()" class="w-full mt-3 py-3 bg-gradient-to-r from-accent to-orange-600 text-white text-sm font-black rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2">
+                            <span>Я выполнил! (+30 XP)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-black text-textDark mb-6 relative z-10 tracking-tight drop-shadow-sm">Как ты сейчас?</h2>
+
+            <div id="mic-block" class="flex flex-col items-center w-full relative z-10">
+                <div class="relative flex items-center justify-center mb-6 group">
+                    <div id="mic-pulse" class="absolute w-36 h-36 bg-primary/30 rounded-full hidden animate-pulseSoft blur-xl pointer-events-none"></div>
+                    <button id="mic-btn" onclick="startRecording()" class="relative w-28 h-28 bg-gradient-to-br from-primary to-primaryDark hover:from-primaryDark hover:to-primary text-white rounded-full flex items-center justify-center transition-all transform hover:scale-110 active:scale-95 shadow-neon border-4 border-white/30 group">
+                        <svg id="mic-icon" class="w-12 h-12 drop-shadow transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button onclick="toggleInputMode('text')" class="glass-panel px-5 py-2 rounded-full text-sm text-primary font-bold hover:bg-white transition-all">или напиши текст</button>
+            </div>
+
+            <div id="text-block" class="hidden flex-col items-center w-full max-w-lg relative z-10 animate-fadeIn">
+                <textarea id="mood-text" rows="4" placeholder="Выплесни свои мысли здесь..." class="w-full p-6 bg-white/60 backdrop-blur-xl border-2 border-white/50 rounded-[2rem] shadow-glass mb-4 outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all resize-none font-bold text-lg text-textDark placeholder:text-textMuted/70"></textarea>
+                <div class="flex space-x-3 w-full">
+                    <button onclick="toggleInputMode('mic')" class="w-1/3 py-4 bg-white/60 backdrop-blur hover:bg-white/80 text-textMuted rounded-2xl font-black transition-all">Отмена</button>
+                    <button id="send-btn" onclick="analyzeTextAndSave()" class="w-2/3 py-4 bg-gradient-to-r from-primary to-primaryDark hover:from-primaryDark hover:to-primary text-white rounded-2xl font-black shadow-lg hover:shadow-neon transition-all active:scale-95 flex items-center justify-center space-x-2 text-lg">
+                        <span>Отправить ИИ</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 ml-1">
+                          <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="mt-8 px-4 w-full">
+            <h3 class="text-xs font-black text-textMuted/80 uppercase tracking-widest mb-4 pl-2">Последние записи</h3>
+            <div id="history-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-panel p-6 rounded-2xl text-center text-sm font-bold text-textMuted">История загружается...</div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="stats-container" class="hidden min-h-screen flex flex-col p-6 w-full max-w-5xl mx-auto relative z-10 animate-fadeIn">
+        <button onclick="switchScreen('main-container')" class="mb-8 self-start glass-panel px-5 py-3 rounded-2xl font-black flex items-center space-x-2 text-textDark hover:bg-white transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clip-rule="evenodd" /></svg>
+            <span>Назад к Капибаре</span>
+        </button>
+        
+        <div class="w-full glass-card p-8 md:p-10 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+            <div class="bg-gradient-to-br from-primary/10 to-teal-100/50 rounded-[2rem] p-8 mb-10 border border-primary/20 relative">
+                <h3 class="font-black text-xl text-textDark mb-3 flex items-center"><span class="text-3xl mr-2">🌿</span>Совет Капи-мудреца</h3>
+                <p id="ui-ai-insight" class="text-textDark font-bold text-lg leading-relaxed italic">Загрузка анализа...</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div class="glass-panel p-6 rounded-3xl">
+                    <div class="flex justify-between mb-3 items-end">
+                        <span class="font-black text-textMuted uppercase tracking-wider text-sm">Стресс</span> 
+                        <span id="ui-stress-value" class="text-3xl font-black text-accent">0%</span>
+                    </div>
+                    <div class="w-full h-5 bg-gray-100/50 rounded-full overflow-hidden shadow-inner border border-white/50 p-1">
+                        <div id="ui-stress-bar" class="h-full rounded-full bg-gradient-to-r from-accent to-red-400 transition-all duration-1000 ease-out shadow-sm" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl">
+                    <div class="flex justify-between mb-3 items-end">
+                        <span class="font-black text-textMuted uppercase tracking-wider text-sm">Энергия</span> 
+                        <span id="ui-energy-value" class="text-3xl font-black text-primary">0%</span>
+                    </div>
+                    <div class="w-full h-5 bg-gray-100/50 rounded-full overflow-hidden shadow-inner border border-white/50 p-1">
+                        <div id="ui-energy-bar" class="h-full rounded-full bg-gradient-to-r from-primary to-teal-400 transition-all duration-1000 ease-out shadow-sm" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-sm font-black text-textMuted uppercase tracking-widest mb-4 pl-2">Твои шаги</h3>
+            <div id="ui-recommendations" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. ВСТАВЬ СЮДА СВОИ КЛЮЧИ! ---
+        const supabaseUrl = 'https://zsjskdxkpdijzyvtpjyd.supabase.co'; 
+        const supabaseKey = 'sb_publishable_EzIBIvr_2e02KEHwJtw1Nw_3P9V1voG'; 
+        const AI_API_KEY = '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'; 
+
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        const AI_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const AI_MODEL = 'llama-3.1-8b-instant';
+
+        let currentUser = null;
+        let xp = parseInt(localStorage.getItem('fx82_xp')) || 0;
+        let level = parseInt(localStorage.getItem('fx82_level')) || 1;
+
+        // --- 2. ЛОГИКА ТАМАГОЧИ (XP И УРОВЕНЬ) ---
+        function updateXPUI() {
+            const levelEl = document.getElementById('capi-level');
+            const barEl = document.getElementById('capi-xp-bar');
+            const percentEl = document.getElementById('xp-percent');
+
+            if (levelEl) levelEl.innerText = level;
+            if (barEl) barEl.style.width = xp + '%';
+            if (percentEl) percentEl.innerText = xp + '%';
+        }
+
+        function addXP(amount) {
+            xp += amount;
+            if (xp >= 100) {
+                level++;
+                xp -= 100;
+                // Более красивый алерт можно сделать библиотекой, пока так
+                alert(`🎉 НОВЫЙ УРОВЕНЬ! Капибара достигла ${level} уровня!`);
+            }
+            localStorage.setItem('fx82_xp', xp);
+            localStorage.setItem('fx82_level', level);
+            updateXPUI();
+        }
+
+        function completeTask() {
+            addXP(30);
+            document.getElementById('task-card').classList.add('hidden');
+            updateCapybara(0, 100); // Делаем ее счастливой
+        }
+
+        // --- 3. НАВИГАЦИЯ ---
+        function switchScreen(id) {
+            const screens = ['auth-container', 'main-container', 'stats-container'];
+            screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+            const target = document.getElementById(id);
+            if (target) {
+                target.classList.remove('hidden');
+                // При переходе на главный экран скроллим наверх
+                if (id === 'main-container') window.scrollTo(0,0); 
+                if (id === 'main-container' || id === 'stats-container') loadWeeklyData();
+            }
+        }
+
+        function toggleInputMode(mode) {
+            const micBlock = document.getElementById('mic-block');
+            const textBlock = document.getElementById('text-block');
+            if(mode === 'text') {
+                micBlock.classList.add('hidden');
+                textBlock.classList.remove('hidden');
+                textBlock.classList.add('flex'); // Важно для флекс контейнера
+            } else {
+                textBlock.classList.add('hidden');
+                textBlock.classList.remove('flex');
+                micBlock.classList.remove('hidden');
+            }
+        }
+
+        // --- 4. АВТОРИЗАЦИЯ ---
+        async function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const btn = document.getElementById('auth-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<span class="animate-pulse">Синхронизация...</span>';
+
+            try {
+                let { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    // Пробуем регистрацию
+                     const { data: upData, error: upError } = await supabaseClient.auth.signUp({ email, password });
+                    if (upError) throw upError;
+                    data = upData;
+                }
+                if (data && data.user) {
+                    currentUser = data.user;
+                    localStorage.setItem('fx82_session', JSON.stringify(data.user));
+                    switchScreen('main-container');
+                    updateXPUI();
+                }
+            } catch (e) { alert("Ошибка входа: " + e.message); }
+            finally { btn.disabled = false; btn.innerHTML = originalBtnText; }
+        }
+
+        // --- 5. ИИ АНАЛИЗ ---
+        async function analyzeTextAndSave() {
+            const textInput = document.getElementById('mood-text');
+            const text = textInput.value;
+            if (!text.trim() || !currentUser) return;
+            const btn = document.getElementById('send-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<span class="animate-pulse">Капибара думает...</span>';
+
+            try {
+                const res = await fetch(AI_API_URL, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${AI_API_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: AI_MODEL,
+                        messages: [
+                            { role: 'system', content: 'Верни ТОЛЬКО JSON: {"stress_level":0-100,"energy_level":0-100,"ai_insight":"короткий совет (1-2 предложения)","recommendations":[{"icon":"эмодзи","text":"короткое действие"}]}' },
+                            { role: 'user', content: text }
+                        ],
+                         temperature: 0.4
+                    })
+                });
+                const aiData = await res.json();
+                const rawContent = aiData.choices[0].message.content.trim();
+                const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+                 if (!jsonMatch) throw new Error("ИИ не прислал JSON");
+                const result = JSON.parse(jsonMatch[0]);
+
+                await supabaseClient.from('mood_logs').insert([{ 
+                    user_id: currentUser.id, transcript: text, stress_level: result.stress_level, energy_level: result.energy_level, ai_insight: result.ai_insight 
+                }]);
+
+                // ОБНОВЛЕНИЕ UI
+                updateCapybara(result.stress_level, result.energy_level);
+                document.getElementById('ui-ai-insight').innerText = result.ai_insight;
+                document.getElementById('ui-stress-bar').style.width = result.stress_level + '%';
+                document.getElementById('ui-stress-value').innerText = result.stress_level + '%';
+                document.getElementById('ui-energy-bar').style.width = result.energy_level + '%';
+                document.getElementById('ui-energy-value').innerText = result.energy_level + '%';
+                updateSoundtrack(result.stress_level, result.energy_level);
+                const recs = document.getElementById('ui-recommendations');
+                recs.innerHTML = result.recommendations.slice(0,3).map(r => `
+                    <div class="glass-panel p-6 rounded-3xl flex flex-col items-center text-center transform hover:-translate-y-1 transition-all">
+                        <span class="text-4xl mb-3 filter drop-shadow">${r.icon}</span>
+                        <span class="text-sm font-black text-textDark">${r.text}</span>
+                    </div>
+                `).join('');
+
+                // ЛОГИКА ТАМАГОЧИ (ЗАДАНИЯ)
+                // ЛОГИКА ТАМАГОЧИ И ДЫХАНИЯ
+const taskCard = document.getElementById('task-card');
+const taskText = document.getElementById('task-text');
+const taskBtn = document.getElementById('task-action-btn'); // Находим кнопку
+
+if (result.stress_level > 70) {
+    // КРИТИЧЕСКИЙ СТРЕСС: Предлагаем тактильное дыхание
+    taskText.innerText = "Уровень стресса критический. Давай сделаем тактильное дыхание по квадрату.";
+    taskBtn.innerHTML = "Начать дыхание 📳";
+    taskBtn.onclick = startTactileBreathing; // Перевешиваем функцию на старт дыхания
+    taskCard.classList.remove('hidden');
+} else if (result.stress_level > 40) {
+    // СРЕДНИЙ СТРЕСС: Обычное задание
+    taskText.innerText = result.recommendations[0]?.text || "Сделай перерыв на 5 минут";
+    taskBtn.innerHTML = "Я выполнил! (+30 XP)";
+    taskBtn.onclick = completeTask; // Обычное выполнение
+    taskCard.classList.remove('hidden');
+} else {
+    // ВСЁ ХОРОШО: Прячем квест, даем опыт за лог
+    taskCard.classList.add('hidden');
+    addXP(15); 
+}
+
+                switchScreen('stats-container');
+            } catch (e) { alert("Ошибка анализа. Попробуй еще раз."); console.error(e); }
+            finally { btn.disabled = false; btn.innerHTML = originalBtnText; textInput.value = ''; }
+        }
+
+        // --- 6. ИСТОРИЯ И КАРТИНКИ ---
+        function updateHistoryUI(logs) {
+            const list = document.getElementById('history-list');
+            if (!list) return;
+            if (logs.length === 0) {
+                list.innerHTML = '<div class="col-span-3 glass-panel p-6 rounded-2xl text-center text-sm font-bold text-textMuted">История пока пуста. Поговори с Капибарой!</div>';
+                return;
+            }
+            list.innerHTML = logs.map(l => `
+                <div class="glass-panel p-5 rounded-[2rem] hover:bg-white/50 transition-all cursor-default group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-3xl filter drop-shadow-sm group-hover:scale-110 transition-transform">${l.stress_level > 70 ? '😨' : l.stress_level > 40 ? '😐' : '😊'}</span>
+                        <span class="text-xs font-black text-white bg-gradient-to-r from-primary to-primaryDark px-3 py-1.5 rounded-full shadow-sm">${l.stress_level}% Стресс</span>
+                    </div>
+                    <p class="text-[11px] font-black text-textMuted/80 uppercase tracking-wider mb-2">${new Date(l.created_at).toLocaleDateString([], {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'})}</p>
+                    <p class="text-sm font-bold text-textDark line-clamp-2 italic leading-snug">"${l.transcript}"</p>
+                </div>
+            `).join('');
+        }
+
+        async function loadWeeklyData() {
+            if (!currentUser) return;
+            const oneWeekAgo = new Date(); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            const { data } = await supabaseClient.from('mood_logs').select('*').eq('user_id', currentUser.id).gte('created_at', oneWeekAgo.toISOString()).order('created_at', { ascending: false }).limit(3);
+            if (data) updateHistoryUI(data);
+        }
+
+        function updateCapybara(stress, energy) {
+            const imgEl = document.getElementById('capi-img');
+            const glowEl = document.getElementById('capi-glow');
+            
+            // Сброс классов анимации
+            glowEl.classList.remove('bg-primary/30', 'bg-red-500/30', 'bg-blue-500/30', 'bg-green-500/30');
+
+            if (stress > 70) {
+                imgEl.src = 'capybara (2).png'; // Stress
+                glowEl.classList.add('bg-red-500/30');
+            } else if (energy < 30) {
+                imgEl.src = 'capybara (3).png'; // Tired
+                glowEl.classList.add('bg-blue-500/30');
+            } else if (stress < 30 && energy > 70) {
+                imgEl.src = 'capybara (4).png'; // Cool
+                glowEl.classList.add('bg-green-500/30');
+            } else {
+                imgEl.src = 'capybara (1).png'; // Chill
+                glowEl.classList.add('bg-primary/30');
+            }
+        }
+
+        // --- 7. МИКРОФОН ---
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ru-RU'; recognition.interimResults = false;
+            recognition.onstart = () => { 
+                document.getElementById('mic-btn').classList.add('scale-110', 'border-red-400'); 
+                document.getElementById('mic-pulse').classList.remove('hidden');
+                document.getElementById('mic-pulse').classList.add('bg-red-500/30');
+            };
+            recognition.onresult = (e) => { document.getElementById('mood-text').value = e.results[0][0].transcript; analyzeTextAndSave(); };
+            recognition.onend = () => { 
+                stopMicUI();
+            };
+            recognition.onerror = (e) => { stopMicUI(); console.error(e); alert("Ошибка микрофона: " + e.error); };
+        }
+
+        function startRecording() { if (recognition) { try{recognition.start();}catch(e){console.log(e)} } else { alert("Нужен Chrome для голоса"); } }
+        function stopMicUI() {
+             document.getElementById('mic-btn').classList.remove('scale-110', 'border-red-400'); 
+             const pulse = document.getElementById('mic-pulse');
+             pulse.classList.add('hidden'); pulse.classList.remove('bg-red-500/30');
+        }
+
+        window.addEventListener('load', () => {
+            const session = localStorage.getItem('fx82_session');
+            if (session) {
+                currentUser = JSON.parse(session);
+                switchScreen('main-container');
+                updateXPUI();
+            }
+        });
+        // --- 8. АУДИО-ДВИЖОК (Генеративный саундтрек) ---
+const audioTracks = {
+    rain: new Audio('rain.mp3'),
+    piano: new Audio('piano.mp3'),
+    beat: new Audio('beat.mp3'),
+    bass: new Audio('bass.mp3')
+};
+
+let isAudioPlaying = false;
+
+// Настраиваем все треки на бесконечный цикл
+Object.values(audioTracks).forEach(track => {
+    track.loop = true;
+    track.volume = 0; // Изначально всё на нуле (тишина)
+});
+
+// Включение/выключение музыки кнопкой
+function toggleAudio() {
+    const iconOff = document.getElementById('audio-icon-off');
+    const iconOn = document.getElementById('audio-icon-on');
+    
+    if (!isAudioPlaying) {
+        // Включаем
+        Object.values(audioTracks).forEach(track => {
+            track.play().catch(e => console.log("Браузер блочит автоплей", e));
+        });
+        isAudioPlaying = true;
+        iconOff.classList.add('hidden');
+        iconOn.classList.remove('hidden');
+        
+        // Запускаем базовый чилловый микс
+        updateSoundtrack(30, 50); 
+    } else {
+        // Выключаем (ставим громкость на 0, чтобы не прерывать синхронизацию)
+        Object.values(audioTracks).forEach(track => track.volume = 0);
+        isAudioPlaying = false;
+        iconOff.classList.remove('hidden');
+        iconOn.classList.add('hidden');
+    }
+}
+
+// Умный микшер: меняет громкость дорожек на основе данных от ИИ
+function updateSoundtrack(stress, energy) {
+    if (!isAudioPlaying) return; // Если юзер выключил звук, ничего не делаем
+
+    console.log(`🎵 Микширую звук: Стресс ${stress}, Энергия ${energy}`);
+
+    // Плавное изменение громкости (чтобы не пугать юзера резкими скачками)
+    const fadeTo = (track, targetVolume) => {
+        // Простая имитация плавности через setTimeout
+        let current = track.volume;
+        const step = targetVolume > current ? 0.05 : -0.05;
+        const interval = setInterval(() => {
+            current += step;
+            if ((step > 0 && current >= targetVolume) || (step < 0 && current <= targetVolume)) {
+                track.volume = Math.max(0, Math.min(1, targetVolume)); // Защита от выхода за пределы 0-1
+                clearInterval(interval);
+            } else {
+                track.volume = Math.max(0, Math.min(1, current));
+            }
+        }, 100);
+    };
+
+    if (stress > 60) {
+        // ПАНИКА/СТРЕСС: Шум дождя громко, остальное глушим (фокус на дыхании)
+        fadeTo(audioTracks.rain, 0.8);
+        fadeTo(audioTracks.piano, 0.1);
+        fadeTo(audioTracks.beat, 0.0);
+        fadeTo(audioTracks.bass, 0.3);
+    } else if (energy < 35) {
+        // УСТАЛОСТЬ/ГРУСТЬ: Мягкое пианино, легкий дождь
+        fadeTo(audioTracks.rain, 0.2);
+        fadeTo(audioTracks.piano, 0.7);
+        fadeTo(audioTracks.beat, 0.0);
+        fadeTo(audioTracks.bass, 0.4);
+    } else if (stress < 30 && energy > 60) {
+        // БОДРОСТЬ/ЧИЛЛ: Lo-Fi бит, басс
+        fadeTo(audioTracks.rain, 0.0);
+        fadeTo(audioTracks.piano, 0.3);
+        fadeTo(audioTracks.beat, 0.6);
+        fadeTo(audioTracks.bass, 0.5);
+    } else {
+        // НЕЙТРАЛЬНО: Ровный баланс
+        fadeTo(audioTracks.rain, 0.1);
+        fadeTo(audioTracks.piano, 0.4);
+        fadeTo(audioTracks.beat, 0.3);
+        fadeTo(audioTracks.bass, 0.3);
+    }
+}
+// --- 9. ТАКТИЛЬНОЕ ДЫХАНИЕ (HAPTIC API) ---
+let breathInterval;
+let breathTimeout;
+
+function startTactileBreathing() {
+    const btn = document.getElementById('task-action-btn');
+    const text = document.getElementById('task-text');
+    const avatar = document.getElementById('capi-container');
+    
+    // Меняем кнопку, чтобы пользователь мог прервать дыхание
+    btn.innerHTML = "Остановить 🛑";
+    btn.onclick = stopTactileBreathing;
+    
+    // Настраиваем сверхплавную анимацию для аватара
+    avatar.style.transition = "transform 4s linear";
+    
+    let step = 0;
+    
+    function breathingCycle() {
+        if (step === 0) {
+            // ВДОХ (4 сек)
+            text.innerHTML = "<span class='text-primary text-xl font-black'>Вдыхай... 🌬️</span>";
+            avatar.style.transform = "scale(1.3)"; // Капибара "надувается"
+            
+            // Непрерывная мягкая вибрация на 4 секунды
+            if (navigator.vibrate) navigator.vibrate(4000);
+            
+        } else if (step === 1) {
+            // ЗАДЕРЖКА (4 сек)
+            text.innerHTML = "<span class='text-orange-500 text-xl font-black'>Держи... ⏳</span>";
+            if (navigator.vibrate) navigator.vibrate(0); // Тишина
+            
+        } else if (step === 2) {
+            // ВЫДОХ (4 сек)
+            text.innerHTML = "<span class='text-blue-500 text-xl font-black'>Выдыхай... 💨</span>";
+            avatar.style.transform = "scale(1)"; // Капибара "сдувается"
+            
+            // Пульсирующая вибрация (имитация медленного выдоха)
+            if (navigator.vibrate) navigator.vibrate([200, 300, 200, 300, 200, 300, 200, 300]);
+            
+        } else if (step === 3) {
+            // ЗАДЕРЖКА (4 сек)
+            text.innerHTML = "<span class='text-textMuted text-xl font-black'>Держи... ⏳</span>";
+            if (navigator.vibrate) navigator.vibrate(0); // Тишина
+        }
+        
+        step = (step + 1) % 4;
+    }
+
+    // Запускаем первый шаг немедленно
+    breathingCycle();
+    // И зацикливаем каждые 4 секунды
+    breathInterval = setInterval(breathingCycle, 4000);
+    
+    // Автоматически завершаем упражнение через 32 секунды (2 полных цикла)
+    breathTimeout = setTimeout(() => {
+        stopTactileBreathing();
+        completeTask(); // Автоматически даем опыт за практику
+        alert("Дыхание восстановлено! Капибара гордится тобой. +30 XP 🐹✨");
+    }, 32000);
+}
+
+function stopTactileBreathing() {
+    clearInterval(breathInterval);
+    clearTimeout(breathTimeout);
+    
+    // Выключаем вибрацию принудительно
+    if (navigator.vibrate) navigator.vibrate(0);
+    
+    // Возвращаем аватар в норму
+    const avatar = document.getElementById('capi-container');
+    avatar.style.transform = "scale(1)";
+    avatar.style.transition = "transform 0.5s transition-all"; 
+    
+    // Возвращаем кнопку в исходное состояние
+    const btn = document.getElementById('task-action-btn');
+    btn.innerHTML = "Я выполнил! (+30 XP)";
+    btn.onclick = completeTask;
+    
+    document.getElementById('task-text').innerText = "Дыхание завершено. Как ты сейчас?";
+}
+    </script>
+</body>
+</html>
