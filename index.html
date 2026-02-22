@@ -620,7 +620,7 @@ function startTactileBreathing() {
             avatar.style.transform = "scale(1.3)"; // Капибара "надувается"
             
             // Непрерывная мягкая вибрация на 4 секунды
-            if (navigator.vibrate) navigator.vibrate(4000);
+            if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500, 200, 500])
             
         } else if (step === 1) {
             // ЗАДЕРЖКА (4 сек)
