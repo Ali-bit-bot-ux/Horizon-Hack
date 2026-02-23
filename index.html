@@ -24,11 +24,13 @@
                         fadeIn: 'fadeIn 0.5s ease-out forwards',
                         float: 'float 6s ease-in-out infinite',
                         pulseSoft: 'pulseSoft 3s ease-in-out infinite',
+                        fadeInUp: 'fadeInUp 0.5s ease-out forwards',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
                         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
-                        pulseSoft: { '0%, 100%': { transform: 'scale(1)', opacity: '0.8' }, '50%': { transform: 'scale(1.05)', opacity: '0.4' } }
+                        pulseSoft: { '0%, 100%': { transform: 'scale(1)', opacity: '0.8' }, '50%': { transform: 'scale(1.05)', opacity: '0.4' } },
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
                     }
                 }
             }
@@ -37,10 +39,16 @@
     <style>
         ::-webkit-scrollbar { width: 0px; }
         body { background-color: #F7F9F8; color: #2C3E35; font-family: 'Nunito', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="antialiased min-h-screen flex flex-col overflow-x-hidden">
+<body class="antialiased min-h-screen flex flex-col overflow-x-hidden relative">
 
     <div id="auth-container" class="min-h-screen flex items-center justify-center p-4">
         <form onsubmit="handleAuth(event)" class="w-full max-w-md bg-cardWhite p-10 rounded-3xl shadow-xl flex flex-col items-center animate-fadeIn border border-white">
@@ -56,28 +64,26 @@
         </form>
     </div>
 
-    <div id="main-container" class="hidden min-h-screen flex flex-col p-4 md:p-8 w-full max-w-6xl mx-auto">
+    <div id="main-container" class="hidden min-h-screen flex flex-col p-4 md:p-8 w-full max-w-6xl mx-auto z-10">
+        
         <header class="flex justify-between items-center mb-6 glass-panel px-3 py-3 rounded-2xl md:rounded-3xl animate-fadeIn z-20 relative w-full">
-    
-    <div class="flex items-center gap-2 min-w-0">
-        <img src="Horizon.png" alt="fx-82" class="w-8 h-8 md:w-12 md:h-12 object-contain shrink-0">
-        <div class="flex flex-col truncate">
-            <span class="font-black text-base md:text-2xl text-textDark truncate">Ловец Мудов</span>
-            <span class="text-[8px] md:text-xs font-extrabold text-primary tracking-widest uppercase mt-0.5 hidden sm:block">Team fx-82</span>
-        </div>
-    </div>
-
-    <div class="flex items-center gap-2 shrink-0">
-        <button id="audio-toggle-btn" onclick="toggleAudio()" class="glass-panel p-2 rounded-full text-textMuted hover:text-primary transition-all">
-            <svg id="audio-icon-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM17.78 9.22a.75.75 0 10-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 001.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 101.06-1.06L20.56 12l1.72-1.72a.75.75 0 00-1.06-1.06l-1.72 1.72-1.72-1.72z" /></svg>
-            <svg id="audio-icon-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 hidden"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z" /><path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z" /></svg>
-        </button>
-
-        <button onclick="switchScreen('stats-container')" class="glass-panel px-3 py-2 rounded-xl font-bold text-textMuted hover:text-primary transition-all flex items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M2.25 13.5a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V10.5a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3zm0-3.75a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V6.75a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3zm0-3.75a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V3a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3z" clip-rule="evenodd" /></svg>
-        </button>
-    </div>
-</header>
+            <div class="flex items-center gap-2 min-w-0">
+                <img src="Horizon.png" alt="fx-82" class="w-8 h-8 md:w-12 md:h-12 object-contain shrink-0">
+                <div class="flex flex-col truncate">
+                    <span class="font-black text-base md:text-2xl text-textDark truncate">Ловец Мудов</span>
+                    <span class="text-[8px] md:text-xs font-extrabold text-primary tracking-widest uppercase mt-0.5 hidden sm:block">Team fx-82</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="audio-toggle-btn" onclick="toggleAudio()" class="glass-panel p-2 rounded-full text-textMuted hover:text-primary transition-all">
+                    <svg id="audio-icon-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM17.78 9.22a.75.75 0 10-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 001.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 101.06-1.06L20.56 12l1.72-1.72a.75.75 0 00-1.06-1.06l-1.72 1.72-1.72-1.72z" /></svg>
+                    <svg id="audio-icon-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 hidden"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z" /><path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z" /></svg>
+                </button>
+                <button onclick="switchScreen('stats-container')" class="glass-panel px-3 py-2 rounded-xl font-bold text-textMuted hover:text-primary transition-all flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M2.25 13.5a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V10.5a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3zm0-3.75a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V6.75a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3zm0-3.75a.75.75 0 00.75.75h18a.75.75 0 00.75-.75V3a.75.75 0 00-.75-.75H3a.75.75 0 00-.75.75v3z" clip-rule="evenodd" /></svg>
+                </button>
+            </div>
+        </header>
 
         <main class="flex-grow flex flex-col items-center justify-center text-center animate-fadeIn relative px-4">
             <div class="flex flex-col items-center mb-6 animate-fadeIn">
@@ -94,9 +100,9 @@
             </div>
 
             <div class="relative w-64 h-64 flex items-center justify-center mb-8 animate-float">
-                <div id="capi-glow" class="absolute inset-0 bg-primary/20 rounded-full blur-3xl"></div>
+                <div id="capi-glow" class="absolute inset-0 bg-primary/20 rounded-full blur-3xl transition-colors duration-1000"></div>
                 <div class="relative w-48 h-48 bg-white rounded-full border-4 border-white shadow-xl overflow-hidden p-4">
-                    <img id="capi-img" src="capybara (1).png" class="w-full h-full object-contain">
+                    <img id="capi-img" src="capybara (1).png" class="w-full h-full object-contain transition-transform duration-500">
                 </div>
             </div>
 
@@ -107,36 +113,15 @@
                         <p class="text-[9px] font-black text-orange-500 uppercase">Срочный квест!</p>
                         <p id="task-text" class="text-xs font-bold text-textDark mb-3">Загрузка задания...</p>
                         <button id="task-action-btn" onclick="handleTaskAction()" class="w-full mt-2 py-3 bg-gradient-to-r from-accent to-orange-600 text-white text-sm font-black rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2">
-    <span>Я выполнил! (+30 XP)</span>
-</button>
+                            <span>Я выполнил! (+30 XP)</span>
+                        </button>
                     </div>
                 </div>
             </div>
-            <button id="vib-btn" onclick="pureVibrationTest()" class="mt-4 px-4 py-4 bg-red-600 text-white rounded-xl font-black z-50 relative w-full max-w-sm mx-auto block shadow-xl active:scale-95 transition-all">
-    ТЕСТ ВИБРАЦИИ (БЕЗ ОКОШЕК)
-</button>
 
-<script>
-    function pureVibrationTest() {
-        const btn = document.getElementById('vib-btn');
-        
-        if ("vibrate" in navigator) {
-            // Мощная, долгая пульсация
-            navigator.vibrate([1000, 500, 1000, 500, 1000]);
-            
-            // Меняем цвет кнопки, чтобы ты видел, что клик сработал
-            btn.innerText = "ЖУЖЖИТ? 📳";
-            btn.classList.replace('bg-red-600', 'bg-green-600');
-            
-            setTimeout(() => {
-                btn.innerText = "ТЕСТ ВИБРАЦИИ (БЕЗ ОКОШЕК)";
-                btn.classList.replace('bg-green-600', 'bg-red-600');
-            }, 3000);
-        } else {
-            btn.innerText = "API НЕ ПОДДЕРЖИВАЕТСЯ ❌";
-        }
-    }
-</script>
+            <button id="vib-btn" onclick="pureVibrationTest()" class="mt-4 px-4 py-3 bg-red-600 text-white rounded-xl font-black z-50 relative w-full max-w-sm mx-auto block shadow-xl active:scale-95 transition-all mb-8">
+                ТЕСТ ВИБРАЦИИ (БЕЗ ОКОШЕК)
+            </button>
 
             <h2 class="text-2xl md:text-3xl font-extrabold text-textDark mb-6 relative z-10">Как ты сейчас?</h2>
 
@@ -166,7 +151,7 @@
             </div>
         </main>
         
-        <footer class="mt-10 px-4 w-full max-w-4xl">
+        <footer class="mt-10 px-4 w-full max-w-4xl mx-auto mb-10">
             <h3 class="text-xs font-bold text-textMuted uppercase tracking-widest mb-4">Твои последние записи</h3>
             <div id="history-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-white/50 p-4 rounded-xl border border-dashed text-center text-xs text-textMuted">Тут появится история...</div>
@@ -174,22 +159,22 @@
         </footer>
     </div>
 
-    <div id="stats-container" class="hidden min-h-screen flex flex-col p-4 md:p-8 w-full max-w-5xl mx-auto">
-        <button onclick="switchScreen('main-container')" class="mb-8 self-start bg-white px-4 py-2 rounded-xl shadow-sm font-bold flex items-center space-x-2">
-            <span>← Назад</span>
+    <div id="stats-container" class="hidden min-h-screen flex flex-col p-4 md:p-8 w-full max-w-5xl mx-auto z-10">
+        <button onclick="switchScreen('main-container')" class="mb-8 self-start bg-white px-4 py-2 rounded-xl shadow-sm font-bold flex items-center space-x-2 hover:bg-gray-50 transition-colors">
+            <span>← Назад к Капибаре</span>
         </button>
         <div class="w-full bg-cardWhite border border-gray-100 rounded-3xl p-8 shadow-xl">
             <div class="bg-primary/5 rounded-2xl p-6 mb-10 border border-primary/10">
-                <h3 class="font-bold text-textDark mb-2">Совет Капибары 🌿</h3>
+                <h3 class="font-bold text-textDark mb-2 flex items-center"><span class="text-2xl mr-2">🌿</span> Совет Капибары</h3>
                 <p id="ui-ai-insight" class="text-textMuted">Загрузка анализа...</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
                 <div>
-                    <div class="flex justify-between mb-2"><span class="font-bold">Стресс</span> <span id="ui-stress-value">0%</span></div>
+                    <div class="flex justify-between mb-2"><span class="font-bold">Стресс</span> <span id="ui-stress-value" class="font-black text-accent">0%</span></div>
                     <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden"><div id="ui-stress-bar" class="h-full bg-accent transition-all duration-1000" style="width: 0%"></div></div>
                 </div>
                 <div>
-                    <div class="flex justify-between mb-2"><span class="font-bold">Энергия</span> <span id="ui-energy-value">0%</span></div>
+                    <div class="flex justify-between mb-2"><span class="font-bold">Энергия</span> <span id="ui-energy-value" class="font-black text-primary">0%</span></div>
                     <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden"><div id="ui-energy-bar" class="h-full bg-primary transition-all duration-1000" style="width: 0%"></div></div>
                 </div>
             </div>
@@ -197,309 +182,372 @@
         </div>
     </div>
 
-    // --- 1. НАСТРОЙКИ ---
-const supabaseUrl = 'https://zsjskdxkpdijzyvtpjyd.supabase.co';
-const supabaseKey = 'sb_publishable_EzIBIvr_2e02KEHwJtw1Nw_3P9V1voG';
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    <script>
+        // --- 1. НАСТРОЙКИ ---
+        const supabaseUrl = 'https://zsjskdxkpdijzyvtpjyd.supabase.co';
+        const supabaseKey = 'sb_publishable_EzIBIvr_2e02KEHwJtw1Nw_3P9V1voG';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-const AI_API_KEY = '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';
-const AI_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const AI_MODEL = 'llama-3.1-8b-instant';
+        const AI_API_KEY = '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';
+        const AI_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const AI_MODEL = 'llama-3.1-8b-instant';
 
-let currentUser = null;
-let xp = parseInt(localStorage.getItem('fx82_xp')) || 0;
-let level = parseInt(localStorage.getItem('fx82_level')) || 1;
+        let currentUser = null;
+        let xp = parseInt(localStorage.getItem('fx82_xp')) || 0;
+        let level = parseInt(localStorage.getItem('fx82_level')) || 1;
+        
+        let recognition; // Глобальная переменная микрофона
 
-// Глобальные переменные для дыхания
-let breathInterval;
-let breathTimeout;
-let currentTaskMode = 'normal'; // Возможные режимы: 'normal', 'ready_to_breathe', 'breathing'
+        // Глобальные переменные для дыхания
+        let breathInterval;
+        let breathTimeout;
 
-// --- 2. ЛОГИКА ТАМАГОЧИ И ДИСПЕТЧЕР ---
-function updateXPUI() {
-    const levelEl = document.getElementById('capi-level');
-    const barEl = document.getElementById('capi-xp-bar');
-    const percentEl = document.getElementById('xp-percent');
+        // --- 2. ЛОГИКА ТАМАГОЧИ И ДИСПЕТЧЕР ---
+        function updateXPUI() {
+            const levelEl = document.getElementById('capi-level');
+            const barEl = document.getElementById('capi-xp-bar');
+            const percentEl = document.getElementById('xp-percent');
 
-    if (levelEl) levelEl.innerText = level;
-    if (barEl) barEl.style.width = xp + '%';
-    if (percentEl) percentEl.innerText = xp + '%';
-}
-
-function addXP(amount) {
-    xp += amount;
-    if (xp >= 100) {
-        level++;
-        xp -= 100;
-        alert("🎊 НОВЫЙ УРОВЕНЬ! Капибара стала мудрее!");
-    }
-    localStorage.setItem('fx82_xp', xp);
-    localStorage.setItem('fx82_level', level);
-    updateXPUI();
-}
-
-function completeTask() {
-    addXP(30);
-    document.getElementById('task-card').classList.add('hidden');
-    updateCapybara(0, 100); // Делаем ее счастливой
-}
-
-// ЕДИНЫЙ ДИСПЕТЧЕР КНОПКИ (БРОНЕБОЙНЫЙ ВАРИАНТ)
-function handleTaskAction() {
-    const btn = document.getElementById('task-action-btn');
-    const btnText = btn.innerText || btn.textContent;
-    
-    console.log("Нажата кнопка, текст:", btnText); // Для проверки в консоли
-
-    if (btnText.includes('Остановить')) {
-        stopTactileBreathing();
-    } else if (btnText.includes('Начать')) {
-        startTactileBreathing();
-    } else {
-        completeTask();
-    }
-}
-
-// --- 3. НАВИГАЦИЯ ---
-function switchScreen(id) {
-    const screens = ['auth-container', 'main-container', 'stats-container'];
-    screens.forEach(s => document.getElementById(s).classList.add('hidden'));
-    const target = document.getElementById(id);
-    if (target) {
-        target.classList.remove('hidden');
-        if (id === 'main-container' || id === 'stats-container') loadWeeklyData();
-    }
-}
-
-function toggleInputMode(mode) {
-    document.getElementById('mic-block').classList.toggle('hidden', mode === 'text');
-    document.getElementById('text-block').classList.toggle('hidden', mode === 'mic');
-}
-
-// --- 4. АВТОРИЗАЦИЯ ---
-async function handleAuth(event) {
-    event.preventDefault();
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const btn = document.getElementById('auth-btn');
-    btn.disabled = true; btn.innerText = "Синхронизация...";
-
-    try {
-        let { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) {
-            const { data: upData, error: upError } = await supabaseClient.auth.signUp({ email, password });
-            if (upError) throw upError;
-            data = upData;
+            if (levelEl) levelEl.innerText = level;
+            if (barEl) barEl.style.width = xp + '%';
+            if (percentEl) percentEl.innerText = xp + '%';
         }
-        if (data && data.user) {
-            currentUser = data.user;
-            localStorage.setItem('fx82_session', JSON.stringify(data.user));
-            switchScreen('main-container');
+
+        function addXP(amount) {
+            xp += amount;
+            if (xp >= 100) {
+                level++;
+                xp -= 100;
+                alert("🎊 НОВЫЙ УРОВЕНЬ! Капибара стала мудрее!");
+            }
+            localStorage.setItem('fx82_xp', xp);
+            localStorage.setItem('fx82_level', level);
             updateXPUI();
         }
-    } catch (e) { alert("Ошибка: " + e.message); }
-    finally { btn.disabled = false; btn.innerText = "Войти или Создать"; }
-}
 
-// --- 5. ИИ АНАЛИЗ ---
-async function analyzeTextAndSave() {
-    const text = document.getElementById('mood-text').value;
-    if (!text.trim() || !currentUser) return;
-    const btn = document.getElementById('send-btn');
-    btn.disabled = true; btn.innerText = "Капибара думает...";
+        function completeTask() {
+            addXP(30);
+            document.getElementById('task-card').classList.add('hidden');
+            updateCapybara(0, 100); // Делаем ее счастливой
+        }
 
-    try {
-        const res = await fetch(AI_API_URL, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${AI_API_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: AI_MODEL,
-                messages: [
-                    { role: 'system', content: 'Верни ТОЛЬКО JSON: {"stress_level":0-100,"energy_level":0-100,"ai_insight":"текст","recommendations":[{"icon":"emoji","text":"текст"}]}' },
-                    { role: 'user', content: text }
-                ]
-            })
+        // БРОНЕБОЙНЫЙ ДИСПЕТЧЕР КНОПКИ ЗАДАНИЯ
+        function handleTaskAction() {
+            const btn = document.getElementById('task-action-btn');
+            const btnText = btn.innerText || btn.textContent;
+            
+            console.log("Нажата кнопка квеста. Текст:", btnText);
+
+            if (btnText.includes('Остановить')) {
+                stopTactileBreathing();
+            } else if (btnText.includes('Начать')) {
+                startTactileBreathing();
+            } else {
+                completeTask();
+            }
+        }
+
+        // --- 3. НАВИГАЦИЯ ---
+        function switchScreen(id) {
+            const screens = ['auth-container', 'main-container', 'stats-container'];
+            screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+            const target = document.getElementById(id);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo(0,0);
+                if (id === 'main-container' || id === 'stats-container') loadWeeklyData();
+            }
+        }
+
+        function toggleInputMode(mode) {
+            document.getElementById('mic-block').classList.toggle('hidden', mode === 'text');
+            document.getElementById('text-block').classList.toggle('hidden', mode === 'mic');
+            if(mode === 'text') document.getElementById('text-block').classList.add('flex');
+            else document.getElementById('text-block').classList.remove('flex');
+        }
+
+        // --- 4. АВТОРИЗАЦИЯ ---
+        async function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const btn = document.getElementById('auth-btn');
+            const oldText = btn.innerText;
+            btn.disabled = true; btn.innerText = "Синхронизация...";
+
+            try {
+                let { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    const { data: upData, error: upError } = await supabaseClient.auth.signUp({ email, password });
+                    if (upError) throw upError;
+                    data = upData;
+                }
+                if (data && data.user) {
+                    currentUser = data.user;
+                    localStorage.setItem('fx82_session', JSON.stringify(data.user));
+                    switchScreen('main-container');
+                    updateXPUI();
+                }
+            } catch (e) { alert("Ошибка: " + e.message); }
+            finally { btn.disabled = false; btn.innerText = oldText; }
+        }
+
+        // --- 5. ИИ АНАЛИЗ ---
+        async function analyzeTextAndSave() {
+            const text = document.getElementById('mood-text').value;
+            if (!text.trim() || !currentUser) return;
+            const btn = document.getElementById('send-btn');
+            const oldText = btn.innerText;
+            btn.disabled = true; btn.innerText = "Капибара думает...";
+
+            try {
+                const res = await fetch(AI_API_URL, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${AI_API_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: AI_MODEL,
+                        messages: [
+                            { role: 'system', content: 'Верни ТОЛЬКО JSON: {"stress_level":0-100,"energy_level":0-100,"ai_insight":"короткий текст","recommendations":[{"icon":"emoji","text":"короткий текст"}]}' },
+                            { role: 'user', content: text }
+                        ],
+                        temperature: 0.3
+                    })
+                });
+                
+                const aiData = await res.json();
+                const rawContent = aiData.choices[0].message.content.trim();
+                const result = JSON.parse(rawContent.substring(rawContent.indexOf('{'), rawContent.lastIndexOf('}') + 1));
+
+                // Сохраняем в Supabase
+                await supabaseClient.from('mood_logs').insert([{ 
+                    user_id: currentUser.id, transcript: text, stress_level: result.stress_level, energy_level: result.energy_level, ai_insight: result.ai_insight 
+                }]);
+
+                // ОБНОВЛЕНИЕ UI СТАТИСТИКИ И КАПИБАРЫ
+                updateCapybara(result.stress_level, result.energy_level);
+                document.getElementById('ui-ai-insight').innerText = result.ai_insight;
+                document.getElementById('ui-stress-bar').style.width = result.stress_level + '%';
+                document.getElementById('ui-stress-value').innerText = result.stress_level + '%';
+                document.getElementById('ui-energy-bar').style.width = result.energy_level + '%';
+                document.getElementById('ui-energy-value').innerText = result.energy_level + '%';
+
+                const recs = document.getElementById('ui-recommendations');
+                recs.innerHTML = result.recommendations.map(r => `
+                    <div class="bg-white p-4 rounded-xl border flex flex-col items-center shadow-sm">
+                        <span class="text-3xl filter drop-shadow-sm mb-2">${r.icon}</span>
+                        <span class="text-[11px] font-bold text-center">${r.text}</span>
+                    </div>
+                `).join('');
+
+                // ВЫДАЧА КВЕСТА
+                const taskCard = document.getElementById('task-card');
+                const taskText = document.getElementById('task-text');
+                const taskBtn = document.getElementById('task-action-btn');
+
+                if (result.stress_level > 60) {
+                    // Если стресс высокий -> Предлагаем дыхание
+                    taskText.innerText = "Уровень стресса высок. Давай сделаем тактильное дыхание по квадрату.";
+                    if (taskBtn) taskBtn.innerHTML = "Начать дыхание 📳";
+                    taskCard.classList.remove('hidden');
+                } else if (result.stress_level > 40) {
+                    // Средний стресс -> Обычный квест
+                    taskText.innerText = result.recommendations[0]?.text || "Сделай перерыв на 5 минут";
+                    if (taskBtn) taskBtn.innerHTML = "Я выполнил! (+30 XP)";
+                    taskCard.classList.remove('hidden');
+                } else {
+                    // Нет стресса -> Прячем квест
+                    taskCard.classList.add('hidden');
+                    addXP(10); 
+                }
+
+                switchScreen('stats-container');
+            } catch (e) { alert("Ошибка анализа. Попробуй еще раз."); console.error(e); }
+            finally { btn.disabled = false; btn.innerText = oldText; document.getElementById('mood-text').value = ''; }
+        }
+
+        // --- 6. ИСТОРИЯ И КАРТИНКИ ---
+        function updateHistoryUI(logs) {
+            const list = document.getElementById('history-list');
+            if (!list) return;
+            if (logs.length === 0) {
+                list.innerHTML = '<p class="text-xs text-textMuted text-center col-span-3">Пока записей нет. Расскажи Капибаре, как прошел день!</p>';
+                return;
+            }
+            list.innerHTML = logs.map(l => `
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-2xl">${l.stress_level > 70 ? '😨' : l.stress_level > 40 ? '😐' : '😊'}</span>
+                        <span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">${l.stress_level}%</span>
+                    </div>
+                    <p class="text-[10px] text-textMuted font-bold uppercase tracking-tighter">${new Date(l.created_at).toLocaleDateString()}</p>
+                    <p class="text-[11px] text-textDark mt-1 line-clamp-2 italic">"${l.transcript}"</p>
+                </div>
+            `).join('');
+        }
+
+        async function loadWeeklyData() {
+            if (!currentUser) return;
+            const oneWeekAgo = new Date(); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            const { data } = await supabaseClient.from('mood_logs').select('*').eq('user_id', currentUser.id).gte('created_at', oneWeekAgo.toISOString()).order('created_at', { ascending: false }).limit(3);
+            if (data) updateHistoryUI(data);
+        }
+
+        function updateCapybara(stress, energy) {
+            const imgEl = document.getElementById('capi-img');
+            const glowEl = document.getElementById('capi-glow');
+            if (stress > 70) {
+                if(imgEl) imgEl.src = 'capybara (2).png'; 
+                if(glowEl) glowEl.style.backgroundColor = 'rgba(239, 68, 68, 0.4)';
+            } else if (energy < 30) {
+                if(imgEl) imgEl.src = 'capybara (3).png'; 
+                if(glowEl) glowEl.style.backgroundColor = 'rgba(59, 130, 246, 0.3)';
+            } else if (stress < 30 && energy > 70) {
+                if(imgEl) imgEl.src = 'capybara (4).png'; 
+                if(glowEl) glowEl.style.backgroundColor = 'rgba(34, 197, 94, 0.4)';
+            } else {
+                if(imgEl) imgEl.src = 'capybara (1).png'; 
+                if(glowEl) glowEl.style.backgroundColor = 'rgba(107, 144, 128, 0.3)';
+            }
+        }
+
+        // --- 7. МИКРОФОН ---
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRec();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = false;
+            
+            recognition.onstart = () => { 
+                document.getElementById('mic-btn').classList.add('bg-red-500', 'scale-110'); 
+                document.getElementById('mic-pulse').classList.remove('hidden'); 
+            };
+            recognition.onresult = (e) => { 
+                document.getElementById('mood-text').value = e.results[0][0].transcript; 
+                analyzeTextAndSave(); 
+            };
+            recognition.onend = () => { 
+                document.getElementById('mic-btn').classList.remove('bg-red-500', 'scale-110'); 
+                document.getElementById('mic-pulse').classList.add('hidden'); 
+            };
+            recognition.onerror = (e) => { console.error("Mic error:", e); }
+        }
+
+        function startRecording() { 
+            if (typeof recognition !== 'undefined' && recognition) {
+                try { recognition.start(); } catch(e) { console.log(e); }
+            } else {
+                alert("Микрофон не поддерживается этим браузером.");
+            }
+        }
+
+        // --- 8. ТАКТИЛЬНОЕ ДЫХАНИЕ (HAPTIC API) ---
+        function startTactileBreathing() {
+            clearInterval(breathInterval);
+            clearTimeout(breathTimeout);
+            
+            const btn = document.getElementById('task-action-btn');
+            const text = document.getElementById('task-text');
+            const avatar = document.getElementById('capi-img'); 
+            
+            if (btn) btn.innerHTML = "Остановить 🛑";
+            if (avatar) avatar.style.transition = "transform 4s linear";
+            
+            let step = 0;
+            
+            function breathingCycle() {
+                // Если текст кнопки изменился (кто-то нажал "Остановить"), цикл прервется сам
+                if (!btn || !btn.innerText.includes('Остановить')) return;
+
+                if (step === 0) {
+                    if (text) text.innerHTML = "<span class='text-primary text-xl font-black'>Вдыхай... 🌬️</span>";
+                    if (avatar) avatar.style.transform = "scale(1.2)";
+                    if (navigator.vibrate) navigator.vibrate(4000);
+                } else if (step === 1) {
+                    if (text) text.innerHTML = "<span class='text-orange-500 text-xl font-black'>Держи... ⏳</span>";
+                    if (navigator.vibrate) navigator.vibrate(0);
+                } else if (step === 2) {
+                    if (text) text.innerHTML = "<span class='text-blue-500 text-xl font-black'>Выдыхай... 💨</span>";
+                    if (avatar) avatar.style.transform = "scale(1)";
+                    if (navigator.vibrate) navigator.vibrate([200, 300, 200, 300, 200, 300]);
+                } else if (step === 3) {
+                    if (text) text.innerHTML = "<span class='text-textMuted text-xl font-black'>Держи... ⏳</span>";
+                    if (navigator.vibrate) navigator.vibrate(0);
+                }
+                step = (step + 1) % 4;
+            }
+
+            breathingCycle();
+            breathInterval = setInterval(breathingCycle, 4000);
+            
+            breathTimeout = setTimeout(() => {
+                if (btn && btn.innerText.includes('Остановить')) {
+                    stopTactileBreathing();
+                    completeTask();
+                    alert("Дыхание восстановлено! Капибара гордится тобой. +30 XP 🐹✨");
+                }
+            }, 32000);
+        }
+
+        function stopTactileBreathing() {
+            clearInterval(breathInterval);
+            clearTimeout(breathTimeout);
+            
+            if (navigator.vibrate) navigator.vibrate(0);
+            
+            const avatar = document.getElementById('capi-img');
+            if (avatar) {
+                avatar.style.transform = "scale(1)";
+                avatar.style.transition = "transform 0.5s ease-out"; 
+            }
+            
+            const btn = document.getElementById('task-action-btn');
+            if (btn) btn.innerHTML = "Я выполнил! (+30 XP)";
+            
+            const text = document.getElementById('task-text');
+            if (text) text.innerText = "Дыхание прервано. Нажми кнопку ниже, если готов завершить квест.";
+        }
+
+        // --- 9. ТЕСТ ВИБРАЦИИ (Чистый тест) ---
+        function pureVibrationTest() {
+            const btn = document.getElementById('vib-btn');
+            if ("vibrate" in navigator) {
+                navigator.vibrate([1000, 500, 1000, 500, 1000]);
+                btn.innerText = "ЖУЖЖИТ? 📳";
+                btn.classList.replace('bg-red-600', 'bg-green-600');
+                
+                setTimeout(() => {
+                    btn.innerText = "ТЕСТ ВИБРАЦИИ (БЕЗ ОКОШЕК)";
+                    btn.classList.replace('bg-green-600', 'bg-red-600');
+                }, 3000);
+            } else {
+                btn.innerText = "API НЕ ПОДДЕРЖИВАЕТСЯ ❌";
+            }
+        }
+
+        // --- 10. КНОПКА ЗВУКА В ШАПКЕ (Заглушка/визуал) ---
+        let isAudioOn = false;
+        function toggleAudio() {
+            isAudioOn = !isAudioOn;
+            const iconOff = document.getElementById('audio-icon-off');
+            const iconOn = document.getElementById('audio-icon-on');
+            if (isAudioOn) {
+                iconOff.classList.add('hidden');
+                iconOn.classList.remove('hidden');
+            } else {
+                iconOff.classList.remove('hidden');
+                iconOn.classList.add('hidden');
+            }
+        }
+
+        // ЗАГРУЗКА ПРИ СТАРТЕ
+        window.addEventListener('load', () => {
+            const session = localStorage.getItem('fx82_session');
+            if (session) {
+                currentUser = JSON.parse(session);
+                switchScreen('main-container');
+                updateXPUI();
+            }
         });
-        const aiData = await res.json();
-        const rawContent = aiData.choices[0].message.content.trim();
-        const result = JSON.parse(rawContent.substring(rawContent.indexOf('{'), rawContent.lastIndexOf('}') + 1));
-
-        await supabaseClient.from('mood_logs').insert([{ 
-            user_id: currentUser.id, transcript: text, stress_level: result.stress_level, energy_level: result.energy_level, ai_insight: result.ai_insight 
-        }]);
-
-        // ОБНОВЛЕНИЕ UI
-        updateCapybara(result.stress_level, result.energy_level);
-        document.getElementById('ui-ai-insight').innerText = result.ai_insight;
-        document.getElementById('ui-stress-bar').style.width = result.stress_level + '%';
-        document.getElementById('ui-stress-value').innerText = result.stress_level + '%';
-        document.getElementById('ui-energy-bar').style.width = result.energy_level + '%';
-        document.getElementById('ui-energy-value').innerText = result.energy_level + '%';
-
-        const recs = document.getElementById('ui-recommendations');
-        recs.innerHTML = result.recommendations.map(r => `
-            <div class="bg-white p-4 rounded-xl border flex flex-col items-center">
-                <span class="text-2xl">${r.icon}</span>
-                <span class="text-[10px] font-bold mt-1 text-center">${r.text}</span>
-            </div>
-        `).join('');
-
-        // СИНХРОНИЗАЦИЯ КВЕСТА С ДИСПЕТЧЕРОМ
-        const taskCard = document.getElementById('task-card');
-        const taskText = document.getElementById('task-text');
-        const taskBtn = document.getElementById('task-action-btn');
-
-        if (result.stress_level > 70) {
-            currentTaskMode = 'ready_to_breathe'; 
-            taskText.innerText = "Уровень стресса критический. Давай сделаем тактильное дыхание по квадрату.";
-            if (taskBtn) taskBtn.innerHTML = "Начать дыхание 📳";
-            taskCard.classList.remove('hidden');
-        } else if (result.stress_level > 40) {
-            currentTaskMode = 'normal'; 
-            taskText.innerText = result.recommendations[0]?.text || "Сделай перерыв на 5 минут";
-            if (taskBtn) taskBtn.innerHTML = "Я выполнил! (+30 XP)";
-            taskCard.classList.remove('hidden');
-        } else {
-            taskCard.classList.add('hidden');
-            addXP(15); 
-        }
-
-        switchScreen('stats-container');
-    } catch (e) { alert("Ошибка анализа."); console.error(e); }
-    finally { btn.disabled = false; btn.innerText = "Отправить ИИ"; document.getElementById('mood-text').value = ''; }
-}
-
-// --- 6. ИСТОРИЯ И КАРТИНКИ ---
-function updateHistoryUI(logs) {
-    const list = document.getElementById('history-list');
-    if (!list) return;
-    if (logs.length === 0) {
-        list.innerHTML = '<p class="text-xs text-textMuted text-center col-span-3">Тут появится история...</p>';
-        return;
-    }
-    list.innerHTML = logs.map(l => `
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm transition-all">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-2xl">${l.stress_level > 70 ? '😨' : l.stress_level > 40 ? '😐' : '😊'}</span>
-                <span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">${l.stress_level}%</span>
-            </div>
-            <p class="text-[10px] text-textMuted font-bold uppercase">${new Date(l.created_at).toLocaleDateString()}</p>
-            <p class="text-[11px] text-textDark mt-1 line-clamp-2">"${l.transcript}"</p>
-        </div>
-    `).join('');
-}
-
-async function loadWeeklyData() {
-    if (!currentUser) return;
-    const oneWeekAgo = new Date(); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    const { data } = await supabaseClient.from('mood_logs').select('*').eq('user_id', currentUser.id).gte('created_at', oneWeekAgo.toISOString()).order('created_at', { ascending: false });
-    if (data) updateHistoryUI(data);
-}
-
-function updateCapybara(stress, energy) {
-    const imgEl = document.getElementById('capi-img');
-    const glowEl = document.getElementById('capi-glow');
-    if (stress > 70) {
-        if(imgEl) imgEl.src = 'capybara (2).png'; // Stress
-        if(glowEl) glowEl.style.backgroundColor = 'rgba(239, 68, 68, 0.4)';
-    } else if (energy < 30) {
-        if(imgEl) imgEl.src = 'capybara (3).png'; // Tired
-        if(glowEl) glowEl.style.backgroundColor = 'rgba(59, 130, 246, 0.3)';
-    } else if (stress < 30 && energy > 70) {
-        if(imgEl) imgEl.src = 'capybara (4).png'; // Cool
-        if(glowEl) glowEl.style.backgroundColor = 'rgba(34, 197, 94, 0.4)';
-    } else {
-        if(imgEl) imgEl.src = 'capybara (1).png'; // Chill
-        if(glowEl) glowEl.style.backgroundColor = 'rgba(107, 144, 128, 0.3)';
-    }
-}
-
-// --- 7. МИКРОФОН ---
-if ('webkitSpeechRecognition' in window) {
-    recognition = new webkitSpeechRecognition();
-    recognition.lang = 'ru-RU';
-    recognition.onstart = () => { document.getElementById('mic-btn').classList.add('bg-red-500', 'scale-110'); document.getElementById('mic-pulse').classList.remove('hidden'); };
-    recognition.onresult = (e) => { document.getElementById('mood-text').value = e.results[0][0].transcript; analyzeTextAndSave(); };
-    recognition.onend = () => { document.getElementById('mic-btn').classList.remove('bg-red-500', 'scale-110'); document.getElementById('mic-pulse').classList.add('hidden'); };
-}
-
-function startRecording() { if (typeof recognition !== 'undefined' && recognition) recognition.start(); }
-
-// --- 8. ТАКТИЛЬНОЕ ДЫХАНИЕ (HAPTIC API) ---
-function startTactileBreathing() {
-    currentTaskMode = 'breathing';
-    clearInterval(breathInterval);
-    clearTimeout(breathTimeout);
-    
-    const btn = document.getElementById('task-action-btn');
-    const text = document.getElementById('task-text');
-    const avatar = document.getElementById('capi-img'); 
-    
-    if (btn) btn.innerHTML = "Остановить 🛑";
-    if (avatar) avatar.style.transition = "transform 4s linear";
-    
-    let step = 0;
-    
-    function breathingCycle() {
-        if (currentTaskMode !== 'breathing') return; // Защита от багов
-
-        if (step === 0) {
-            if (text) text.innerHTML = "<span class='text-primary text-xl font-black'>Вдыхай... 🌬️</span>";
-            if (avatar) avatar.style.transform = "scale(1.2)";
-            if (navigator.vibrate) navigator.vibrate(4000);
-        } else if (step === 1) {
-            if (text) text.innerHTML = "<span class='text-orange-500 text-xl font-black'>Держи... ⏳</span>";
-            if (navigator.vibrate) navigator.vibrate(0);
-        } else if (step === 2) {
-            if (text) text.innerHTML = "<span class='text-blue-500 text-xl font-black'>Выдыхай... 💨</span>";
-            if (avatar) avatar.style.transform = "scale(1)";
-            if (navigator.vibrate) navigator.vibrate([200, 300, 200, 300, 200, 300]);
-        } else if (step === 3) {
-            if (text) text.innerHTML = "<span class='text-textMuted text-xl font-black'>Держи... ⏳</span>";
-            if (navigator.vibrate) navigator.vibrate(0);
-        }
-        step = (step + 1) % 4;
-    }
-
-    breathingCycle();
-    breathInterval = setInterval(breathingCycle, 4000);
-    
-    breathTimeout = setTimeout(() => {
-        if (currentTaskMode === 'breathing') {
-            stopTactileBreathing();
-            completeTask();
-            alert("Дыхание восстановлено! Капибара гордится тобой. +30 XP 🐹✨");
-        }
-    }, 32000);
-}
-
-function stopTactileBreathing() {
-    currentTaskMode = 'normal';
-    clearInterval(breathInterval);
-    clearTimeout(breathTimeout);
-    
-    if (navigator.vibrate) navigator.vibrate(0);
-    
-    const avatar = document.getElementById('capi-img');
-    if (avatar) {
-        avatar.style.transform = "scale(1)";
-        avatar.style.transition = "transform 0.5s ease-out"; 
-    }
-    
-    const btn = document.getElementById('task-action-btn');
-    if (btn) btn.innerHTML = "Я выполнил! (+30 XP)";
-    
-    const text = document.getElementById('task-text');
-    if (text) text.innerText = "Дыхание прервано. Нажми кнопку ниже, если готов завершить квест.";
-}
-
-window.addEventListener('load', () => {
-    const session = localStorage.getItem('fx82_session');
-    if (session) {
-        currentUser = JSON.parse(session);
-        switchScreen('main-container');
-        updateXPUI();
-    }
-});
+    </script>
 </body>
 </html>
