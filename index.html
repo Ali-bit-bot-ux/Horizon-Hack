@@ -112,22 +112,28 @@
                     </div>
                 </div>
             </div>
-            <button onclick="testVibration()" class="mb-6 px-4 py-3 bg-red-500 text-white rounded-xl font-bold z-50 relative w-full max-w-xs mx-auto shadow-lg animate-pulse">
-    🚨 ТЕСТ ВИБРАЦИИ 🚨
+            <button id="vib-btn" onclick="pureVibrationTest()" class="mt-4 px-4 py-4 bg-red-600 text-white rounded-xl font-black z-50 relative w-full max-w-sm mx-auto block shadow-xl active:scale-95 transition-all">
+    ТЕСТ ВИБРАЦИИ (БЕЗ ОКОШЕК)
 </button>
 
 <script>
-    // Сама функция для теста
-    function testVibration() {
+    function pureVibrationTest() {
+        const btn = document.getElementById('vib-btn');
+        
         if ("vibrate" in navigator) {
-            let success = navigator.vibrate([300, 100, 300, 100, 800]);
-            if (success) {
-                alert("Команда ушла! Телефон вибрирует?");
-            } else {
-                alert("Браузер блокирует вибрацию! Проверь настройки Android.");
-            }
+            // Мощная, долгая пульсация
+            navigator.vibrate([1000, 500, 1000, 500, 1000]);
+            
+            // Меняем цвет кнопки, чтобы ты видел, что клик сработал
+            btn.innerText = "ЖУЖЖИТ? 📳";
+            btn.classList.replace('bg-red-600', 'bg-green-600');
+            
+            setTimeout(() => {
+                btn.innerText = "ТЕСТ ВИБРАЦИИ (БЕЗ ОКОШЕК)";
+                btn.classList.replace('bg-green-600', 'bg-red-600');
+            }, 3000);
         } else {
-            alert("Этот браузер/устройство вообще не поддерживает вибрацию (Haptic API).");
+            btn.innerText = "API НЕ ПОДДЕРЖИВАЕТСЯ ❌";
         }
     }
 </script>
